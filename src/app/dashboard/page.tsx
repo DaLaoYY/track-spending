@@ -10,15 +10,12 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  updateDoc,
-  getDoc,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
 import { database, auth } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { Catagorey } from "../model/spend.model";
 import { useTranslation } from "react-i18next"; // Import i18next hook
 import "../i18n"; // Import i18n initialization here
 
@@ -27,7 +24,6 @@ const SpendingTracker = () => {
   const [category, setCategory] = useState("food");
   const [view, setView] = useState("input"); // 'input' or 'summary'
   const [expenses, setExpenses] = useState([]);
-  const [updatedAmt, setUpdatedAmt] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter(); // Replace with `useHistory` in plain React
   const [user, setUser] = useState(null); // To store user details
@@ -120,7 +116,7 @@ const SpendingTracker = () => {
         await addDoc(spendingRecordsRef, newExpense);
         getSpendingRecords();
       }
-    } catch (err) {
+    } catch (error) {
       alert("add expense failed");
     }
   };
@@ -130,21 +126,9 @@ const SpendingTracker = () => {
       try {
         await deleteDoc(recordDocRef);
         getSpendingRecords();
-      } catch (err) {
+      } catch (error) {
         alert("delete failed");
       }
-    }
-  };
-
-  const updateAmt = async (id: string) => {
-    const billDoc = doc(database, "bills", id);
-    const taskSnapshot = await getDoc(billDoc);
-
-    setUpdatedAmt("");
-    try {
-      await updateDoc(billDoc, { ...taskSnapshot, amount: updatedAmt });
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -161,8 +145,6 @@ const SpendingTracker = () => {
     month,
     total,
   }));
-
-  const x = loading;
 
   if (loading) {
     // Show a loading indicator while checking authentication status
